@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f7f8fc" />
+  <title>Lexora — Learn words. Express yourself.</title>
+  <style>
+    :root {
+      --bg: #f7f8fc;
+      --surface: #ffffff;
+      --surface-soft: #f1f3ff;
+      --ink: #172033;
+      --muted: #70798c;
+      --line: #e8eaf1;
+      --primary: #536dfe;
+      --primary-dark: #4058e8;
+      --lavender: #eef0ff;
+      --green: #159568;
+      --red: #d95454;
+      --shadow: 0 12px 36px rgba(28, 39, 75, .06);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .app { min-height: 100vh; display: grid; grid-template-columns: 248px 1fr; }
+    .sidebar { background: var(--surface); border-right: 1px solid var(--line); padding: 26px 16px; display: flex; flex-direction: column; gap: 28px; position: sticky; top: 0; height: 100vh; }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 0 10px; }
+    .brand-mark { width: 38px; height: 38px; border-radius: 13px; display: grid; place-items: center; color: white; font-weight: 800; font-size: 20px; background: linear-gradient(145deg, #7185ff, #4b5fe5); box-shadow: 0 7px 16px rgba(83,109,254,.24); }
+    .brand-name { font-size: 21px; font-weight: 800; letter-spacing: -.7px; }
+    .brand-tag { color: var(--muted); font-size: 10px; margin-top: 1px; }
+    .nav-label { padding: 0 12px; color: #9aa1b0; text-transform: uppercase; font-size: 10px; font-weight: 800; letter-spacing: 1.2px; margin-bottom: 8px; }
+    .nav { display: grid; gap: 5px; }
+    .nav button { border: 0; background: transparent; color: #687286; padding: 12px 13px; border-radius: 12px; display: flex; align-items: center; gap: 12px; text-align: left; font-size: 13px; font-weight: 650; transition: .18s ease; }
+    .nav button:hover { background: #f6f7fb; color: var(--ink); }
+    .nav button.active { background: var(--lavender); color: var(--primary-dark); }
+    .nav-icon { width: 20px; text-align: center; font-size: 17px; }
+    .sidebar-bottom { margin-top: auto; }
+    .profile { display: flex; align-items: center; gap: 10px; border-top: 1px solid var(--line); padding: 18px 8px 0; }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background: #e8eaff; color: #4b5fe5; display: grid; place-items: center; font-weight: 800; font-size: 12px; }
+    .profile strong { display: block; font-size: 12px; }
+    .profile small { color: var(--muted); font-size: 10px; }
+    main { min-width: 0; padding: 34px clamp(20px, 4vw, 58px) 100px; max-width: 1500px; width: 100%; margin: 0 auto; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 30px; }
+    .eyebrow { color: var(--primary); font-size: 11px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; }
+    h1 { font-size: clamp(25px, 3vw, 34px); letter-spacing: -1.2px; margin: 7px 0 6px; }
+    .subhead { color: var(--muted); font-size: 14px; margin: 0; line-height: 1.6; }
+    .date-chip { color: #687286; border: 1px solid var(--line); background: white; border-radius: 999px; padding: 10px 14px; font-size: 12px; white-space: nowrap; }
+    .view { display: none; }
+    .view.active { display: block; animation: appear .22s ease; }
+    @keyframes appear { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+    .grid { display: grid; gap: 18px; }
+    .stats { grid-template-columns: repeat(3, minmax(0,1fr)); margin: 24px 0; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 21px; box-shadow: var(--shadow); min-width: 0; }
+    .stat { display: flex; justify-content: space-between; align-items: flex-start; }
+    .stat-label { color: var(--muted); font-size: 12px; font-weight: 650; }
+    .stat-value { font-size: 27px; font-weight: 800; letter-spacing: -1px; margin-top: 10px; }
+    .stat-note { color: var(--green); font-size: 10px; margin-top: 5px; }
+    .stat-icon { background: var(--lavender); color: var(--primary); width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; }
+    .dashboard-grid { grid-template-columns: minmax(0, 1.45fr) minmax(260px, .85fr); }
+    .section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+    h2 { font-size: 17px; letter-spacing: -.4px; margin: 0; }
+    .text-button { border: 0; background: none; color: var(--primary); font-weight: 750; font-size: 12px; padding: 5px; }
+    .word-card { background: linear-gradient(130deg, #f0f2ff, #fafaff); border: 1px solid #e6e9ff; border-radius: 16px; padding: 22px; }
+    .word-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+    .word { font-size: 30px; font-weight: 800; letter-spacing: -1px; margin: 5px 0; }
+    .phonetic { color: #737d96; font-size: 12px; }
+    .part { background: white; border: 1px solid #e3e7ff; color: #6573ca; border-radius: 999px; padding: 6px 10px; font-size: 10px; font-weight: 750; }
+    .definition { line-height: 1.65; font-size: 14px; margin: 16px 0 8px; }
+    .example { color: #737d96; font-size: 12px; line-height: 1.6; font-style: italic; }
+    .actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; }
+    .btn { border: 1px solid var(--line); border-radius: 11px; padding: 10px 14px; background: white; color: var(--ink); font-size: 12px; font-weight: 750; transition: .18s; }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(20,30,60,.08); }
+    .btn.primary { color: white; background: var(--primary); border-color: var(--primary); }
+    .btn.primary:hover { background: var(--primary-dark); }
+    .quick-list { display: grid; gap: 10px; }
+    .quick-action { width: 100%; text-align: left; display: flex; align-items: center; gap: 12px; padding: 13px; border: 1px solid var(--line); border-radius: 13px; background: white; }
+    .quick-action:hover { border-color: #cbd2ff; background: #fbfbff; }
+    .quick-icon { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; background: var(--lavender); color: var(--primary); font-size: 17px; }
+    .quick-action strong { display: block; font-size: 12px; }
+    .quick-action small { display: block; color: var(--muted); font-size: 10px; margin-top: 4px; }
+    .word-list { display: grid; gap: 9px; }
+    .word-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-bottom: 1px solid #f0f1f5; padding: 10px 0; }
+    .word-row:last-child { border-bottom: 0; }
+    .word-row strong { font-size: 13px; }
+    .word-row small { display: block; color: var(--muted); font-size: 11px; margin-top: 3px; }
+    .status { font-size: 10px; color: var(--green); background: #eaf7f1; border-radius: 999px; padding: 5px 8px; }
+    .chat-layout { display: grid; grid-template-columns: 220px minmax(0,1fr); gap: 16px; min-height: 590px; }
+    .chat-history { background: white; border: 1px solid var(--line); border-radius: var(--radius); padding: 15px; }
+    .chat-history h3 { font-size: 12px; margin: 3px 0 14px; }
+    .history-item { width: 100%; text-align: left; padding: 10px; border: 0; background: #f7f8fc; border-radius: 9px; margin-bottom: 7px; color: #596276; font-size: 11px; }
+    .chat-panel { background: white; border: 1px solid var(--line); border-radius: var(--radius); display: flex; flex-direction: column; min-height: 590px; overflow: hidden; }
+    .chat-head { padding: 15px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
+    .bot-avatar { width: 34px; height: 34px; border-radius: 12px; display: grid; place-items: center; color: white; background: linear-gradient(145deg,#7185ff,#4b5fe5); }
+    .chat-head strong { display: block; font-size: 12px; }
+    .chat-head small { display: block; color: var(--green); font-size: 10px; margin-top: 3px; }
+    .chat-messages { flex: 1; padding: 22px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; max-height: 470px; }
+    .message { max-width: 82%; display: flex; flex-direction: column; gap: 6px; }
+    .message.user { align-self: flex-end; align-items: flex-end; }
+    .bubble { padding: 12px 14px; border-radius: 14px; background: #f3f4f9; color: #30394c; font-size: 13px; line-height: 1.65; white-space: pre-wrap; }
+    .message.user .bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
+    .message small { color: #9aa1af; font-size: 9px; }
+    .suggestions { display: flex; flex-wrap: wrap; gap: 7px; padding: 0 20px 14px; }
+    .suggestion { border: 1px solid #e4e7ff; background: #fafaff; color: #5c6bd5; padding: 8px 10px; border-radius: 999px; font-size: 10px; }
+    .chat-compose { border-top: 1px solid var(--line); padding: 13px; display: flex; gap: 8px; align-items: center; }
+    .chat-compose input, .search-input, .field { width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: 11px; padding: 12px 13px; outline: none; color: var(--ink); background: #fff; font-size: 12px; }
+    input:focus { border-color: #aab5ff; box-shadow: 0 0 0 3px #eef0ff; }
+    .icon-btn { flex: 0 0 auto; width: 42px; height: 42px; border: 1px solid var(--line); background: white; border-radius: 12px; color: var(--primary); font-size: 17px; }
+    .icon-btn.listening { background: #fff0f0; color: var(--red); border-color: #ffdada; animation: pulse 1s infinite; }
+    @keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(217,84,84,.1); } }
+    .library-tools { display: flex; gap: 10px; margin: 18px 0; }
+    .library-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+    .vocab-card { background: white; border: 1px solid var(--line); border-radius: 15px; padding: 17px; }
+    .vocab-card h3 { margin: 0 0 5px; font-size: 17px; }
+    .vocab-card p { color: var(--muted); font-size: 12px; line-height: 1.55; min-height: 38px; }
+    .vocab-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 13px; }
+    .practice-box { max-width: 680px; margin: 25px auto; text-align: center; }
+    .practice-word { font-size: clamp(34px,7vw,54px); letter-spacing: -2px; font-weight: 850; margin: 20px 0 5px; }
+    .mic-large { width: 84px; height: 84px; border-radius: 50%; border: 0; color: white; background: var(--primary); font-size: 29px; box-shadow: 0 10px 25px rgba(83,109,254,.28); margin: 22px auto 12px; display: grid; place-items: center; }
+    .mic-large.listening { background: var(--red); animation: pulse 1s infinite; }
+    .practice-result { text-align: left; background: #f8f9fc; border: 1px solid var(--line); border-radius: 13px; padding: 15px; margin-top: 17px; font-size: 13px; line-height: 1.7; white-space: pre-wrap; }
+    .quiz-card { max-width: 680px; margin: 25px auto; }
+    .progress-track { height: 7px; background: #eef0f5; border-radius: 99px; overflow: hidden; margin: 15px 0 23px; }
+    .progress-fill { height: 100%; background: var(--primary); width: 0; transition: width .2s; }
+    .answer { width: 100%; display: block; text-align: left; padding: 13px 14px; border: 1px solid var(--line); border-radius: 11px; background: white; margin: 9px 0; font-size: 12px; }
+    .answer:hover { border-color: #aab5ff; background: #fafaff; }
+    .answer.selected { border-color: var(--primary); background: var(--lavender); color: var(--primary-dark); }
+    .empty { color: var(--muted); text-align: center; padding: 35px 15px; font-size: 13px; }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translate(-50%,20px); opacity: 0; pointer-events: none; background: #20283a; color: white; padding: 11px 16px; border-radius: 10px; font-size: 12px; transition: .2s; z-index: 20; }
+    .toast.show { opacity: 1; transform: translate(-50%,0); }
+    .mobile-brand { display: none; }
+    .mobile-nav { display: none; }
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 210px 1fr; }
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .library-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width: 680px) {
+      .app { display: block; }
+      .sidebar { display: none; }
+      main { padding: 22px 16px 105px; }
+      .topbar { align-items: flex-start; margin-bottom: 22px; }
+      .date-chip { display: none; }
+      .mobile-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+      .mobile-brand .brand-mark { width: 32px; height: 32px; border-radius: 10px; font-size: 17px; }
+      .mobile-brand .brand-name { font-size: 18px; }
+      .stats { gap: 9px; }
+      .stats .card { padding: 13px; }
+      .stat-value { font-size: 22px; }
+      .stat-label { font-size: 10px; }
+      .stat-icon { display: none; }
+      .card { padding: 16px; }
+      .chat-layout { display: block; min-height: 0; }
+      .chat-history { display: none; }
+      .chat-panel { min-height: calc(100dvh - 235px); }
+      .chat-messages { max-height: none; min-height: 300px; padding: 16px; }
+      .message { max-width: 92%; }
+      .suggestions { padding: 0 12px 12px; }
+      .chat-compose { padding: 10px; }
+      .library-grid { grid-template-columns: 1fr; }
+      .library-tools { flex-direction: column; }
+      .mobile-nav { position: fixed; z-index: 10; display: grid; grid-template-columns: repeat(5,1fr); bottom: 0; left: 0; right: 0; background: rgba(255,255,255,.96); backdrop-filter: blur(12px); border-top: 1px solid var(--line); padding: 8px 5px calc(8px + env(safe-area-inset-bottom)); }
+      .mobile-nav button { border: 0; background: none; color: #8a92a3; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 9px; padding: 5px 1px; }
+      .mobile-nav button span:first-child { font-size: 17px; }
+      .mobile-nav button.active { color: var(--primary); font-weight: 800; }
+      .practice-box { margin: 15px auto; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">L</div><div><div class="brand-name">lexora</div><div class="brand-tag">Learn words. Express yourself.</div></div></div>
+    <div>
+      <div class="nav-label">Workspace</div>
+      <nav class="nav" id="desktopNav">
+        <button class="active" data-view="dashboard"><span class="nav-icon">▦</span>Dashboard</button>
+        <button data-view="tutor"><span class="nav-icon">✧</span>AI Tutor</button>
+        <button data-view="vocabulary"><span class="nav-icon">▤</span>My Vocabulary</button>
+        <button data-view="practice"><span class="nav-icon">◉</span>Speaking Practice</button>
+        <button data-view="quiz"><span class="nav-icon">✓</span>Vocabulary Quiz</button>
+      </nav>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="nav-label">Your space</div>
+      <nav class="nav"><button data-view="settings"><span class="nav-icon">⚙</span>Settings</button></nav>
+      <div class="profile"><div class="avatar">L</div><div><strong>Guest learner</strong><small>Your learning space</small></div></div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="mobile-brand"><div class="brand-mark">L</div><div class="brand-name">lexora</div></div>
+    <div class="topbar">
+      <div><div class="eyebrow" id="pageEyebrow">YOUR LEARNING SPACE</div><h1 id="pageTitle">Good morning, learner.</h1><p class="subhead" id="pageSubtitle">A few new words today can make a big difference tomorrow.</p></div>
+      <div class="date-chip" id="todayDate"></div>
+    </div>
+
+    <section class="view active" id="dashboard">
+      <div class="grid stats">
+        <div class="card stat"><div><div class="stat-label">Words saved</div><div class="stat-value" id="statSaved">0</div><div class="stat-note">Build your personal library</div></div><div class="stat-icon">▤</div></div>
+        <div class="card stat"><div><div class="stat-label">Words learned</div><div class="stat-value" id="statLearned">0</div><div class="stat-note">Every word moves you forward</div></div><div class="stat-icon">✦</div></div>
+        <div class="card stat"><div><div class="stat-label">Quizzes completed</div><div class="stat-value" id="statQuizzes">0</div><div class="stat-note">Practice makes progress</div></div><div class="stat-icon">✓</div></div>
+      </div>
+      <div class="grid dashboard-grid">
+        <div class="card">
+          <div class="section-head"><h2>Word of the day</h2><span class="part">TODAY'S PICK</span></div>
+          <div class="word-card">
+            <div class="word-top"><div><div class="word" id="dailyWord">Resilient</div><div class="phonetic" id="dailyPhonetic">/rɪˈzɪliənt/</div></div><span class="part" id="dailyPart">ADJECTIVE</span></div>
+            <p class="definition" id="dailyDefinition">Able to recover quickly from difficulties and adapt to challenging situations.</p>
+            <div class="example" id="dailyExample">“She stayed resilient even when the project became difficult.”</div>
+            <div class="actions"><button class="btn" onclick="speakDaily()">🔊 Listen</button><button class="btn primary" onclick="saveDaily()">＋ Save word</button><button class="btn" onclick="navigate('tutor')">Explore with AI →</button></div>
+          </div>
+          <div class="section-head" style="margin-top:25px"><h2>Recently saved</h2><button class="text-button" onclick="navigate('vocabulary')">View library →</button></div>
+          <div class="word-list" id="recentWords"><div class="empty">Your saved words will appear here.</div></div>
+        </div>
+        <div class="card">
+          <div class="section-head"><h2>Continue learning</h2></div>
+          <div class="quick-list">
+            <button class="quick-action" onclick="navigate('tutor')"><span class="quick-icon">✧</span><span><strong>Talk to your AI tutor</strong><small>Explore a word or ask a question</small></span></button>
+            <button class="quick-action" onclick="navigate('practice')"><span class="quick-icon">◉</span><span><strong>Practise speaking</strong><small>Build confidence, one sentence at a time</small></span></button>
+            <button class="quick-action" onclick="navigate('quiz')"><span class="quick-icon">✓</span><span><strong>Take a vocabulary quiz</strong><small>Put your knowledge to the test</small></span></button>
+          </div>
+          <div style="margin-top:25px;background:#f7f8fc;border-radius:14px;padding:16px">
+            <div class="eyebrow">A SMALL REMINDER</div><p style="font-size:13px;line-height:1.6;margin:8px 0 0">Consistency beats cramming. Learn a few words, use them in a sentence, and revisit them tomorrow.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="tutor">
+      <div class="chat-layout">
+        <aside class="chat-history"><h3>Conversation</h3><button class="btn primary" style="width:100%;margin-bottom:15px" onclick="newChat()">＋ New chat</button><button class="history-item" onclick="newChat()">Vocabulary questions</button><p style="font-size:10px;color:#9aa1b0;line-height:1.5">Your current session is stored in this browser.</p></aside>
+        <div class="chat-panel">
+          <div class="chat-head"><div class="bot-avatar">✧</div><div><strong>Lexora AI Tutor</strong><small>● Ready to help you learn</small></div></div>
+          <div class="chat-messages" id="messages">
+            <div class="message"><div class="bubble">Hi! I'm your Lexora tutor. Ask me about an English word, explore its meaning, or practise using it in a sentence. What would you like to learn today?</div><small>LEXORA · JUST NOW</small></div>
+          </div>
+          <div class="suggestions" id="suggestions"><button class="suggestion" onclick="useSuggestion('Explain the word perseverance')">Explain a word</button><button class="suggestion" onclick="useSuggestion('Teach me a useful business English word')">Teach me a new word</button><button class="suggestion" onclick="useSuggestion('Give me a sentence challenge')">Give me a challenge</button></div>
+          <form class="chat-compose" id="chatForm"><button type="button" class="icon-btn" id="chatMic" title="Speak your question" aria-label="Speak your question">🎙</button><input id="chatInput" placeholder="Ask about a word or type a question…" autocomplete="off" /><button class="btn primary" type="submit">Send ↗</button></form>
+        </div>
+      </div>
+      <p style="font-size:10px;color:#929aaa;margin:10px 2px">Prototype mode: sample tutor responses are provided locally. Connect a secure AI backend to enable live AI conversations.</p>
+    </section>
+
+    <section class="view" id="vocabulary">
+      <div class="section-head"><div><h2>Your word collection</h2><p class="subhead" style="margin-top:5px">Keep the words you want to remember close.</p></div><button class="btn primary" onclick="navigate('tutor')">＋ Discover words</button></div>
+      <div class="library-tools"><input class="search-input" id="wordSearch" placeholder="Search your vocabulary…" /><select class="search-input" id="statusFilter" style="max-width:180px"><option value="all">All words</option><option value="New">New</option><option value="Learning">Learning</option><option value="Learned">Learned</option></select></div>
+      <div class="grid library-grid" id="libraryGrid"><div class="empty">No words saved yet. Save the word of the day or explore one with your tutor.</div></div>
+    </section>
+
+    <section class="view" id="practice">
+      <div class="card practice-box">
+        <div class="eyebrow">SPEAKING PRACTICE</div><h2 style="margin-top:8px">Make the word yours.</h2><p class="subhead">Use the word in a sentence. Speak naturally or type your answer.</p>
+        <div class="practice-word" id="practiceWord">Meticulous</div><div class="phonetic" id="practicePhonetic">/məˈtɪkjələs/ · adjective</div>
+        <p style="font-size:14px;line-height:1.6;margin:20px auto;max-width:450px" id="practicePrompt">Describe how you would use this word when talking about your work.</p>
+        <button class="mic-large" id="practiceMic" aria-label="Start speaking practice">🎙</button><div class="subhead" id="micStatus">Tap the microphone and say your sentence</div>
+        <div style="display:flex;gap:8px;margin-top:20px"><input class="field" id="practiceInput" placeholder="Or type your sentence here…" /><button class="btn primary" onclick="evaluatePractice()">Check</button></div>
+        <div class="practice-result" id="practiceResult" style="display:none"></div>
+        <button class="text-button" style="margin-top:15px" onclick="nextPracticeWord()">Try another word →</button>
+      </div>
+    </section>
+
+    <section class="view" id="quiz">
+      <div class="card quiz-card" id="quizCard">
+        <div class="eyebrow">QUICK KNOWLEDGE CHECK</div><h2 style="margin-top:8px">A little practice goes a long way.</h2><p class="subhead" style="margin-top:7px">Test your understanding with a short vocabulary quiz.</p>
+        <div style="margin:24px 0"><strong style="font-size:14px">5 questions · Multiple choice</strong><p class="subhead" style="font-size:12px">You'll get instant feedback and a score at the end.</p></div>
+        <button class="btn primary" onclick="startQuiz()">Start quiz →</button>
+      </div>
+    </section>
+
+    <section class="view" id="settings">
+      <div class="card" style="max-width:650px">
+        <h2>Settings</h2><p class="subhead" style="margin:7px 0 22px">Make Lexora feel right for you.</p>
+        <label style="font-size:12px;font-weight:700">Display name</label><input class="field" id="displayName" value="Guest learner" style="margin:8px 0 18px" />
+        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:8px">Speech playback speed</label><select class="field" id="speechRate"><option value="0.85">Slow</option><option value="1" selected>Normal</option><option value="1.15">Fast</option></select>
+        <div style="margin-top:22px"><button class="btn primary" onclick="saveSettings()">Save settings</button><button class="btn" style="margin-left:7px" onclick="resetData()">Reset demo data</button></div>
+        <p class="subhead" style="font-size:11px;margin-top:18px">Lexora prototype · Data is stored locally in this browser.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="mobile-nav" id="mobileNav">
+  <button class="active" data-view="dashboard"><span>▦</span><span>Home</span></button>
+  <button data-view="tutor"><span>✧</span><span>Tutor</span></button>
+  <button data-view="vocabulary"><span>▤</span><span>Words</span></button>
+  <button data-view="practice"><span>◉</span><span>Speak</span></button>
+  <button data-view="quiz"><span>✓</span><span>Quiz</span></button>
+</nav>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const daily = { word:"Resilient", phonetic:"/rɪˈzɪliənt/", part:"ADJECTIVE", definition:"Able to recover quickly from difficulties and adapt to challenging situations.", example:"“She stayed resilient even when the project became difficult.”" };
+  const seedWords = [
+    {word:"Perseverance",phonetic:"/ˌpɜːrsəˈvɪrəns/",part:"noun",definition:"Continued effort to achieve something despite difficulty or delay.",status:"Learning"},
+    {word:"Meticulous",phonetic:"/məˈtɪkjələs/",part:"adjective",definition:"Showing great attention to detail; very careful and precise.",status:"New"},
+    {word:"Pragmatic",phonetic:"/præɡˈmætɪk/",part:"adjective",definition:"Dealing with things sensibly and realistically.",status:"Learned"},
+    {word:"Articulate",phonetic:"/ɑːrˈtɪkjələt/",part:"adjective",definition:"Able to express ideas clearly and effectively.",status:"New"}
+  ];
+  let words = JSON.parse(localStorage.getItem("lexora_words") || "[]");
+  let quizzes = Number(localStorage.getItem("lexora_quizzes") || 0);
+  let chatHistory = JSON.parse(localStorage.getItem("lexora_chat") || "[]");
+  let recognition = null;
+  let practiceCurrent = 0;
+  const practiceWords = [
+    {word:"Meticulous",phonetic:"/məˈtɪkjələs/ · adjective",prompt:"Describe how you would use this word when talking about your work."},
+    {word:"Perseverance",phonetic:"/ˌpɜːrsəˈvɪrəns/ · noun",prompt:"Describe a situation where perseverance helped someone succeed."},
+    {word:"Articulate",phonetic:"/ɑːrˈtɪkjələt/ · adjective",prompt:"Explain why being articulate is useful in a professional setting."},
+    {word:"Pragmatic",phonetic:"/præɡˈmætɪk/ · adjective",prompt:"Describe a pragmatic way to solve a difficult problem."}
+  ];
+  const quizQuestions = [
+    {q:"What does 'resilient' mean?",a:["Able to recover from difficulty","Extremely wealthy","Unwilling to communicate","Easily distracted"],correct:0,why:"Resilient describes the ability to recover, adapt or bounce back after difficulty."},
+    {q:"Which word means 'very careful and precise'?",a:["Pragmatic","Meticulous","Vague","Reluctant"],correct:1,why:"Meticulous means showing great attention to detail."},
+    {q:"What is 'perseverance'?",a:["A sudden decision","A lack of interest","Continued effort despite difficulty","A formal announcement"],correct:2,why:"Perseverance is persistent effort toward a goal despite obstacles."},
+    {q:"Choose the best use of 'articulate'.",a:["An articulate explanation","An articulate headache","An articulate weather","An articulate silence"],correct:0,why:"An articulate explanation is expressed clearly and effectively."},
+    {q:"A pragmatic person is most likely to…",a:["Ignore practical limits","Focus on realistic solutions","Avoid making decisions","Choose the fanciest option"],correct:1,why:"Pragmatic means practical and focused on what works."}
+  ];
+  let quizIndex = 0, quizScore = 0, quizSelected = null;
+
+  function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2300); }
+  function navigate(view){
+    document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===view));
+    document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+    const titles={dashboard:["YOUR LEARNING SPACE","Good morning, learner.","A few new words today can make a big difference tomorrow."],tutor:["YOUR AI LEARNING PARTNER","Let's explore language.","Ask questions, discover meanings and practise naturally."],vocabulary:["YOUR PERSONAL WORD BANK","My vocabulary","Every saved word is another step forward."],practice:["BUILD YOUR CONFIDENCE","Speaking practice","Turn new vocabulary into language you can use."],quiz:["TEST WHAT YOU KNOW","Vocabulary quiz","A little practice helps new words stick."],settings:["PERSONALIZE YOUR EXPERIENCE","Settings","A few simple preferences for your learning space."]};
+    $("pageEyebrow").textContent=titles[view][0];$("pageTitle").textContent=titles[view][1];$("pageSubtitle").textContent=titles[view][2];
+    if(view==="vocabulary") renderLibrary();
+    if(view==="dashboard") renderDashboard();
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+  document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>navigate(b.dataset.view)));
+  $("todayDate").textContent=new Intl.DateTimeFormat("en",{weekday:"short",month:"short",day:"numeric"}).format(new Date());
+  function persist(){localStorage.setItem("lexora_words",JSON.stringify(words));localStorage.setItem("lexora_quizzes",String(quizzes));}
+  function saveWord(item){
+    if(words.some(w=>w.word.toLowerCase()===item.word.toLowerCase())){toast("That word is already in your library.");return;}
+    words.unshift({...item,status:"New",savedAt:Date.now()});persist();renderDashboard();renderLibrary();toast(item.word+" saved to your vocabulary.");
+  }
+  function saveDaily(){saveWord({...daily,part:daily.part.toLowerCase()});}
+  function speak(text){
+    if(!("speechSynthesis" in window)){toast("Speech playback is not supported in this browser.");return;}
+    window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=Number(localStorage.getItem("lexora_rate")||1);window.speechSynthesis.speak(u);
+  }
+  function speakDaily(){speak(daily.word+". "+daily.definition+". "+daily.example);}
+  function renderDashboard(){
+    $("statSaved").textContent=words.length;$("statLearned").textContent=words.filter(w=>w.status==="Learned").length;$("statQuizzes").textContent=quizzes;
+    const recent=words.slice(0,4);$("recentWords").innerHTML=recent.length?recent.map(w=>`<div class="word-row"><div><strong>${escapeHTML(w.word)}</strong><small>${escapeHTML(w.definition)}</small></div><span class="status">${escapeHTML(w.status)}</span></div>`).join(""):'<div class="empty">Your saved words will appear here.</div>';
+  }
+  function renderLibrary(){
+    const q=($("wordSearch").value||"").toLowerCase(),f=$("statusFilter").value;
+    const filtered=words.filter(w=>(w.word.toLowerCase().includes(q)||w.definition.toLowerCase().includes(q))&&(f==="all"||w.status===f));
+    $("libraryGrid").innerHTML=filtered.length?filtered.map((w,i)=>`<article class="vocab-card"><div style="display:flex;justify-content:space-between;gap:8px"><h3>${escapeHTML(w.word)}</h3><button class="text-button" aria-label="Play pronunciation" onclick="speak('${escapeJS(w.word)}')">🔊</button></div><div class="phonetic">${escapeHTML(w.phonetic||"")} · ${escapeHTML(w.part||"")}</div><p>${escapeHTML(w.definition)}</p><div class="vocab-meta"><select class="field" style="width:auto;padding:7px;font-size:10px" onchange="changeStatus('${escapeJS(w.word)}',this.value)"><option ${w.status==="New"?"selected":""}>New</option><option ${w.status==="Learning"?"selected":""}>Learning</option><option ${w.status==="Learned"?"selected":""}>Learned</option></select><button class="text-button" onclick="removeWord('${escapeJS(w.word)}')">Remove</button></div></article>`).join(""):'<div class="empty">No matching words. Try another search or save a new word with your tutor.</div>';
+  }
+  function changeStatus(word,status){const w=words.find(x=>x.word===word);if(w){w.status=status;persist();renderDashboard();toast("Learning status updated.");}}
+  function removeWord(word){words=words.filter(w=>w.word!==word);persist();renderLibrary();renderDashboard();toast("Word removed.");}
+  $("wordSearch").addEventListener("input",renderLibrary);$("statusFilter").addEventListener("change",renderLibrary);
+  function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+  function escapeJS(s){return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'");}
+  function addMessage(text,who="bot",save=true){
+    const box=$("messages"),div=document.createElement("div");div.className="message "+(who==="user"?"user":"");const bubble=document.createElement("div");bubble.className="bubble";bubble.textContent=text;const small=document.createElement("small");small.textContent=who==="user"?"YOU · JUST NOW":"LEXORA · JUST NOW";div.append(bubble,small);box.appendChild(div);box.scrollTop=box.scrollHeight;
+    if(save){chatHistory.push({text,who});localStorage.setItem("lexora_chat",JSON.stringify(chatHistory.slice(-40)));}
+    return div;
+  }
+  function loadChat(){if(chatHistory.length){$("messages").innerHTML="";chatHistory.forEach(m=>addMessage(m.text,m.who,false));}}
+  function newChat(){chatHistory=[];localStorage.removeItem("lexora_chat");$("messages").innerHTML="";addMessage("New conversation started. What word or expression would you like to explore?","bot",false);}
+  const dictionary={
+    resilient:{phonetic:"/rɪˈzɪliənt/",part:"adjective",definition:"Able to recover quickly from difficulties and adapt to challenging situations.",synonyms:"strong, adaptable, tough",antonyms:"fragile, vulnerable",examples:["She remained resilient after facing several setbacks.","A resilient business can adapt to changing markets.","Children can develop resilience through supportive environments."]},
+    perseverance:{phonetic:"/ˌpɜːrsəˈvɪrəns/",part:"noun",definition:"Continued effort to achieve something despite difficulty or delay.",synonyms:"persistence, determination, tenacity",antonyms:"giving up, surrender",examples:["Her perseverance helped her finish the project.","Learning a language takes patience and perseverance.","He showed perseverance despite repeated setbacks."]},
+    meticulous:{phonetic:"/məˈtɪkjələs/",part:"adjective",definition:"Showing great attention to detail; very careful and precise.",synonyms:"careful, thorough, precise",antonyms:"careless, sloppy",examples:["She is meticulous when reviewing financial reports.","The designer paid meticulous attention to detail.","A meticulous plan reduced the chance of errors."]},
+    pragmatic:{phonetic:"/præɡˈmætɪk/",part:"adjective",definition:"Dealing with things sensibly and realistically, based on practical considerations.",synonyms:"practical, realistic, sensible",antonyms:"idealistic, impractical",examples:["We need a pragmatic solution to the problem.","His pragmatic approach helped the team move forward.","A pragmatic decision considers available resources."]},
+    articulate:{phonetic:"/ɑːrˈtɪkjələt/",part:"adjective",definition:"Able to express ideas and feelings clearly and effectively.",synonyms:"eloquent, expressive, clear",antonyms:"inarticulate, unclear",examples:["She gave an articulate explanation of the proposal.","Good leaders communicate in an articulate way.","He is articulate when discussing complex topics."]},
+    eloquent:{phonetic:"/ˈeləkwənt/",part:"adjective",definition:"Fluent or persuasive in speaking or writing.",synonyms:"expressive, persuasive, fluent",antonyms:"inarticulate, hesitant",examples:["His eloquent speech inspired the audience.","She wrote an eloquent letter of thanks.","The speaker gave an eloquent argument."]}
+  };
+  function tutorReply(input){
+    const lower=input.toLowerCase();const match=Object.keys(dictionary).find(w=>new RegExp("\\b"+w+"\\b","i").test(lower));
+    if(match){const d=dictionary[match];const reply=`${match.charAt(0).toUpperCase()+match.slice(1)} ${d.phonetic} · ${d.part}\n\nMeaning: ${d.definition}\n\nExamples:\n• ${d.examples.join("\n• ")}\n\nSynonyms: ${d.synonyms}\nAntonyms: ${d.antonyms}\n\nTry using "${match}" in a sentence of your own. I'll help you improve it.`;return reply;}
+    if(/business|professional|work/i.test(lower))return "A useful word for professional communication is “articulate”. It means being able to express ideas clearly and effectively.\n\nExample: “She gave an articulate explanation of the project strategy.”\n\nWould you like to try using it in a sentence?";
+    if(/challenge|test|quiz/i.test(lower))return "Here's a quick challenge: Complete this sentence using “perseverance”.\n\n“Despite several setbacks, her ______ helped her complete the project.”\n\nWhat word would you use, and why?";
+    if(/similar|difference|between/i.test(lower))return "I can explain the difference between two words. Tell me the pair you'd like to compare, and I'll break down their meanings and show you when to use each one.";
+    if(/new word|teach me|suggest/i.test(lower))return "Today's suggested word is “eloquent”. It means fluent, expressive or persuasive in speaking or writing.\n\nExample: “He delivered an eloquent presentation that made the complex idea easy to understand.”\n\nTry using “eloquent” in a sentence. You can also save it to your vocabulary library.";
+    return "That's a good question. In this prototype, I can explain a selection of sample words: resilient, perseverance, meticulous, pragmatic, articulate and eloquent.\n\nFor live, open-ended AI conversations, connect a secure Gemini API backend. What word would you like to explore?";
+  }
+  function sendChat(text){
+    text=text.trim();if(!text)return;addMessage(text,"user");$("chatInput").value="";
+    const loading=addMessage("Let me think that through…","bot",false);
+    setTimeout(()=>{loading.remove();addMessage(tutorReply(text),"bot");},450);
+  }
+  $("chatForm").addEventListener("submit",e=>{e.preventDefault();sendChat($("chatInput").value);});
+  function useSuggestion(text){sendChat(text);}
+  function setupRecognition(onText,onStatus){
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){onStatus("Speech recognition isn't available in this browser. Try Chrome, or type your response.");return null;}
+    const r=new SR();r.lang="en-US";r.interimResults=false;r.maxAlternatives=1;
+    r.onstart=()=>onStatus("Listening… speak now");r.onresult=e=>onText(e.results[0][0].transcript);r.onerror=e=>onStatus(e.error==="not-allowed"?"Microphone permission denied. Allow microphone access in browser settings.":"Couldn't recognize speech. Please try again.");r.onend=()=>{};
+    return r;
+  }
+  $("chatMic").addEventListener("click",()=>{
+    if(!recognition)recognition=setupRecognition(text=>{$("chatMic").classList.remove("listening");$("chatInput").value=text;sendChat(text);},msg=>{toast(msg);$("chatMic").classList.remove("listening");});
+    if(!recognition){toast("Speech recognition unavailable. You can type instead.");return;}
+    try{$("chatMic").classList.add("listening");recognition.start();}catch(e){$("chatMic").classList.remove("listening");toast("Microphone is busy. Try again.");}
+    recognition.onend=()=>$("chatMic").classList.remove("listening");
+  });
+  function updatePractice(){const p=practiceWords[practiceCurrent%practiceWords.length];$("practiceWord").textContent=p.word;$("practicePhonetic").textContent=p.phonetic;$("practicePrompt").textContent=p.prompt;$("practiceInput").value="";$("practiceResult").style.display="none";}
+  function nextPracticeWord(){practiceCurrent++;updatePractice();}
+  $("practiceMic").addEventListener("click",()=>{
+    const r=setupRecognition(text=>{$("practiceInput").value=text;$("practiceMic").classList.remove("listening");$("micStatus").textContent="Speech captured. Check your sentence when ready.";},msg=>{$("micStatus").textContent=msg;$("practiceMic").classList.remove("listening");});
+    if(!r){toast("Speech recognition unavailable. Type your sentence instead.");return;}
+    r.onstart=()=>{$("practiceMic").classList.add("listening");$("micStatus").textContent="Listening… speak your sentence";};
+    r.onend=()=>{$("practiceMic").classList.remove("listening");};
+    try{r.start();}catch(e){toast("Microphone is busy. Try again.");}
+  });
+  function evaluatePractice(){
+    const text=$("practiceInput").value.trim();if(!text){toast("Speak or type a sentence first.");return;}
+    const word=practiceWords[practiceCurrent%practiceWords.length].word.toLowerCase(),used=text.toLowerCase().includes(word);
+    const result=used?`Good effort! You used “${word}” in your sentence.\n\nYour sentence: “${text}”\n\nNext step: Check that the surrounding words make the meaning clear and that the grammar is correct. Try creating another sentence in a different context.\n\nNote: This is basic local feedback, not a full AI grammar or pronunciation assessment.`:`Your sentence: “${text}”\n\nTry including the word “${word}” so you can practise its meaning in context. Here's a model: “I used a ${word.toLowerCase()} approach to complete the task.”\n\nNote: Connect a live AI backend for detailed grammar and contextual feedback.`;
+    $("practiceResult").textContent=result;$("practiceResult").style.display="block";
+  }
+  function startQuiz(){quizIndex=0;quizScore=0;quizSelected=null;renderQuestion();}
+  function renderQuestion(){
+    const q=quizQuestions[quizIndex],progress=quizIndex/quizQuestions.length*100;
+    $("quizCard").innerHTML=`<div class="eyebrow">QUESTION ${quizIndex+1} OF ${quizQuestions.length}</div><div class="progress-track"><div class="progress-fill" style="width:${progress}%"></div></div><h2 style="font-size:21px;line-height:1.4;margin:20px 0">${q.q}</h2><div id="answers">${q.a.map((a,i)=>`<button class="answer" onclick="selectAnswer(${i})">${String.fromCharCode(65+i)}. ${escapeHTML(a)}</button>`).join("")}</div><div id="quizFeedback" style="font-size:12px;margin:14px 0;line-height:1.6"></div><button class="btn primary" id="quizNext" disabled onclick="nextQuestion()">Continue →</button>`;
+  }
+  function selectAnswer(i){if(quizSelected!==null)return;quizSelected=i;const q=quizQuestions[quizIndex];if(i===q.correct)quizScore++;document.querySelectorAll(".answer").forEach((b,j)=>{if(j===q.correct)b.style.borderColor="#159568";if(j===i&&i!==q.correct)b.style.borderColor="#d95454";});$("quizFeedback").textContent=(i===q.correct?"Correct! ":"Not quite. ")+q.why;$("quizFeedback").style.color=i===q.correct?"#159568":"#bd5555";$("quizNext").disabled=false;quizSelected=null;}
+  function nextQuestion(){quizIndex++;if(quizIndex<quizQuestions.length){renderQuestion();return;}quizzes++;persist();renderDashboard();const pct=Math.round(quizScore/quizQuestions.length*100);$("quizCard").innerHTML=`<div class="eyebrow">QUIZ COMPLETE</div><div style="font-size:48px;margin:20px 0 8px">✦</div><h2 style="font-size:25px">You scored ${quizScore} out of ${quizQuestions.length}</h2><p class="subhead" style="margin:9px 0 20px">${pct}% accuracy · ${pct>=80?"Great work. Keep building on that momentum.": "Good practice. Review the explanations and give it another try."}</p><button class="btn primary" onclick="startQuiz()">Try again</button><button class="btn" style="margin-left:7px" onclick="navigate('dashboard')">Back to dashboard</button>`;}
+  function saveSettings(){const n=$("displayName").value.trim()||"Guest learner";document.querySelector(".profile strong").textContent=n;localStorage.setItem("lexora_name",n);localStorage.setItem("lexora_rate",$("speechRate").value);toast("Settings saved.");}
+  function resetData(){if(!confirm("Reset all Lexora demo words, quiz results and chat history on this browser?"))return;words=[];quizzes=0;chatHistory=[];localStorage.removeItem("lexora_words");localStorage.removeItem("lexora_quizzes");localStorage.removeItem("lexora_chat");persist();renderDashboard();renderLibrary();newChat();toast("Demo data has been reset.");}
+  function init(){const n=localStorage.getItem("lexora_name");if(n){$("displayName").value=n;document.querySelector(".profile strong").textContent=n;}const rate=localStorage.getItem("lexora_rate");if(rate)$("speechRate").value=rate;renderDashboard();loadChat();updatePractice();}
+  init();
+</script>
+</body>
+</html>
